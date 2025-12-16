@@ -1,29 +1,20 @@
-name: 'Terraform Infrastructure'
+name:  'Terraform Infrastructure'
 
 on:
   push:
-    branches: [ main ]
+    branches:  [ main ]
     paths:
       - 'terraform/**'
-  pull_request:
-    branches:  [ main ]
-    paths: 
-      - 'terraform/**'
-  workflow_dispatch: 
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  terraform: 
+  terraform:
     name: 'Terraform'
     runs-on: ubuntu-latest
     environment: staging
-
-    defaults:
-      run:
-        shell: bash
-        working-directory: terraform/environments/staging
 
     env:
       ARM_CLIENT_ID: ${{ secrets. AZURE_CLIENT_ID }}
@@ -32,28 +23,33 @@ jobs:
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
 
     steps: 
-    - name:  Checkout
+    - name: Checkout
       uses: actions/checkout@v4
-
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version:  "1.5.0"
-        terraform_wrapper: false
 
     - name: Azure Login
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Terraform Init
-      run: terraform init
+    - name: Create AKS Cluster
+      run: |
+        # Check if AKS exists
+        if az aks show --name aks-gm-staging --resource-group RG-GM_Assessment &>/dev/null; then
+          echo "AKS cluster already exists"
+        else
+          echo "Creating AKS cluster..."
+          az aks create \
+            --resource-group RG-GM_Assessment \
+            --name aks-gm-staging \
+            --node-count 1 \
+            --node-vm-size Standard_B2s \
+            --generate-ssh-keys \
+            --enable-managed-identity \
+            --tags Environment=staging Project=GM-Assessment ManagedBy=AzureCLI
 
-    - name: Terraform Validate
-      run: terraform validate
+        fi
 
-    - name: Terraform Plan
-      run: terraform plan
-
-    - name: Terraform Apply
-      run: terraform apply -auto-approve
+    - name: Get AKS Credentials
+      run: |
+        az aks get-credentials --resource-group RG-GM_Assessment --name aks-gm-staging --overwrite-existing
+        kubectl get nodes
