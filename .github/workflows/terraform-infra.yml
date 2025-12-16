@@ -7,15 +7,15 @@ on:
       - 'terraform/**'
   pull_request:
     branches: [ main ]
-    paths: 
+    paths:
       - 'terraform/**'
-  workflow_dispatch:
+  workflow_dispatch: 
 
 permissions:
   contents: read
 
 jobs:
-  terraform:
+  terraform: 
     name: 'Terraform'
     runs-on:  ubuntu-latest
     environment: staging
@@ -46,11 +46,24 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Terraform Init
+    - name:  Terraform Init
       run: terraform init
 
     - name: Terraform Validate
       run: terraform validate
 
     - name: Terraform Plan
-      run: terraform plan -var="sql_admin_login=${{ secrets. SQL_ADMIN_LOGIN }}" -var="sql_admin_password=${{ secrets.SQL_ADMIN_PASSWORD }}"
+      run: |
+        set +e
+        terraform plan -var="sql_admin_login=${{ secrets. SQL_ADMIN_LOGIN }}" -var="sql_admin_password=${{ secrets.SQL_ADMIN_PASSWORD }}" -detailed-exitcode
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 0 ]; then
+          echo "No changes needed"
+          exit 0
+        elif [ $EXIT_CODE -eq 2 ]; then
+          echo "Changes detected - plan succeeded"
+          exit 0
+        else
+          echo "Plan failed"
+          exit 1
+        fi
