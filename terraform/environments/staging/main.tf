@@ -108,3 +108,5 @@ module "openai" {
   sku_name            = "S0"
   tags                = var. tags
 }
+
+# Trigger CI/CD
