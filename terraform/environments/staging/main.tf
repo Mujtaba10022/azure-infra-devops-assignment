@@ -64,3 +64,5 @@ output "aks_cluster_name" {
 output "aks_cluster_id" {
   value = azurerm_kubernetes_cluster.main.id
 }
+
+# trigger aks
