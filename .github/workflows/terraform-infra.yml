@@ -1,23 +1,23 @@
 name: 'Terraform Infrastructure'
 
-on:
-  push: 
+on: 
+  push:  
+    branches: [ main ]
+    paths:  
+      - 'terraform/**'
+  pull_request: 
     branches: [ main ]
     paths: 
       - 'terraform/**'
-  pull_request:
-    branches:  [ main ]
-    paths: 
-      - 'terraform/**'
-  workflow_dispatch: 
+  workflow_dispatch:  
 
 permissions:
   contents: read
 
 jobs:
-  terraform: 
+  terraform:  
     name: 'Terraform'
-    runs-on: ubuntu-latest
+    runs-on:  ubuntu-latest
     environment: staging
 
     defaults:
@@ -25,44 +25,35 @@ jobs:
         shell: bash
         working-directory: terraform/environments/staging
 
-    steps:
-    - name:  Checkout
+    steps: 
+    - name: Checkout
       uses: actions/checkout@v4
 
     - name: Setup Terraform
-      uses:  hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v3
       with:
-        terraform_version: "1.5.0"
+        terraform_version:  "1.5.0"
 
     - name: Azure Login
       uses: azure/login@v1
-      with: 
+      with:  
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Terraform Init
       run: terraform init
       env:
-        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets. AZURE_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID:  ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-
-    - name: Terraform Validate
-      run: terraform validate
-
-    - name: Terraform Plan
-      run: terraform plan -var="sql_admin_login=${{ secrets.SQL_ADMIN_LOGIN }}" -var="sql_admin_password=${{ secrets.SQL_ADMIN_PASSWORD }}" -out=tfplan
-      env:
-        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        ARM_CLIENT_ID: ${{ secrets. AZURE_CLIENT_ID }}
         ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
 
-    - name:  Terraform Apply
-      if: github. ref == 'refs/heads/main' && github.event_name == 'push'
-      run: terraform apply -auto-approve tfplan
+    - name:  Terraform Validate
+      run: terraform validate
+
+    - name: Terraform Plan
+      run: terraform plan -var="sql_admin_login=${{ secrets.SQL_ADMIN_LOGIN }}" -var="sql_admin_password=${{ secrets.SQL_ADMIN_PASSWORD }}"
       env:
-        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        ARM_CLIENT_SECRET:  ${{ secrets.AZURE_CLIENT_SECRET }}
+        ARM_CLIENT_ID: ${{ secrets. AZURE_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
         ARM_SUBSCRIPTION_ID: ${{ secrets. AZURE_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        ARM_TENANT_ID:  ${{ secrets.AZURE_TENANT_ID }}
