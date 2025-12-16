@@ -1,28 +1,20 @@
-name:  'Terraform Infrastructure'
+name: 'Deploy Infrastructure and App'
 
-on:
-  push:
-    branches:  [ main ]
-    paths:
-      - 'terraform/**'
+on: 
+  push: 
+    branches: [ main ]
   workflow_dispatch:
 
-permissions:
+permissions: 
   contents: read
 
-jobs:
-  terraform:
-    name: 'Terraform'
+jobs: 
+  deploy:
+    name:  'Deploy'
     runs-on: ubuntu-latest
     environment: staging
 
-    env:
-      ARM_CLIENT_ID: ${{ secrets. AZURE_CLIENT_ID }}
-      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-
-    steps: 
+    steps:
     - name: Checkout
       uses: actions/checkout@v4
 
@@ -31,9 +23,8 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Create AKS Cluster
+    - name:  Check/Create AKS Cluster
       run: |
-        # Check if AKS exists
         if az aks show --name aks-gm-staging --resource-group RG-GM_Assessment &>/dev/null; then
           echo "AKS cluster already exists"
         else
@@ -45,11 +36,22 @@ jobs:
             --node-vm-size Standard_B2s \
             --generate-ssh-keys \
             --enable-managed-identity \
-            --tags Environment=staging Project=GM-Assessment ManagedBy=AzureCLI
-
+            --tags Environment=staging Project=GM-Assessment
         fi
 
     - name: Get AKS Credentials
       run: |
         az aks get-credentials --resource-group RG-GM_Assessment --name aks-gm-staging --overwrite-existing
-        kubectl get nodes
+
+    - name: Deploy Application
+      run: |
+        kubectl apply -f k8s/webapp.yaml
+        echo "Waiting for deployment..."
+        kubectl rollout status deployment/webapp --timeout=120s
+
+    - name: Get Application URL
+      run: |
+        echo "Waiting for LoadBalancer IP..."
+        sleep 60
+        kubectl get service webapp-service
+        kubectl get pods
