@@ -1,6 +1,6 @@
 resource "azurerm_kubernetes_cluster" "main" {
   name                = var.cluster_name
-  location            = var.location
+  location            = var. location
   resource_group_name = var.resource_group_name
   dns_prefix          = var.dns_prefix
   kubernetes_version  = var.kubernetes_version
@@ -34,10 +34,6 @@ resource "azurerm_kubernetes_cluster" "main" {
     managed            = true
   }
 
-  oms_agent {
-    log_analytics_workspace_id = var.log_analytics_workspace_id
-  }
-
   key_vault_secrets_provider {
     secret_rotation_enabled = true
   }
@@ -61,7 +57,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "user" {
 }
 
 resource "azurerm_role_assignment" "acr_pull" {
-  count                            = var.acr_id != "" ? 1 : 0
+  count                            = var.attach_acr ? 1 :  0
   principal_id                     = azurerm_kubernetes_cluster.main.kubelet_identity[0].object_id
   role_definition_name             = "AcrPull"
   scope                            = var.acr_id

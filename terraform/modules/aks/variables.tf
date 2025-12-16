@@ -93,3 +93,9 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "attach_acr" {
+  description = "Whether to attach ACR to AKS"
+  type        = bool
+  default     = false
+}
