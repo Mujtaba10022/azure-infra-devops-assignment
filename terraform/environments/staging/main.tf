@@ -1,129 +1,110 @@
+# Data source for existing resource group
+data "azurerm_resource_group" "main" {
+  name = var. resource_group_name
+}
+
+# Data source for current client
 data "azurerm_client_config" "current" {}
 
-resource "random_string" "suffix" {
-  length  = 6
-  special = false
-  upper   = false
+# Log Analytics Workspace
+resource "azurerm_log_analytics_workspace" "main" {
+  name                = "log-${var.project_name}-${var.environment}"
+  location            = data.azurerm_resource_group.main.location
+  resource_group_name = data.azurerm_resource_group.main. name
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
+  tags                = var.tags
 }
 
-locals {
-  suffix = random_string.suffix.result
-  tags = merge(var.tags, {
-    Environment = var.environment
-  })
-}
-
-resource "azurerm_resource_group" "main" {
-  name     = "rg-${var.environment}-${local.suffix}"
-  location = var. aks_location
-  tags     = local.tags
-}
- 
+# Networking Module
 module "networking" {
   source              = "../../modules/networking"
-  resource_group_name = azurerm_resource_group.main. name
-  location            = azurerm_resource_group.main.location
-  environment         = var.environment
-  vnet_address_space  = ["10.0.0.0/16"]
-  tags                = local.tags
+  resource_group_name = data.azurerm_resource_group.main.name
+  location            = data.azurerm_resource_group.main.location
+  vnet_name           = "vnet-${var.project_name}-${var.environment}"
+  vnet_address_space  = var.vnet_address_space
+  aks_subnet_name     = "snet-aks-${var.project_name}-${var.environment}"
+  aks_subnet_prefix   = var.aks_subnet_prefix
+  pe_subnet_name      = "snet-pe-${var.project_name}-${var.environment}"
+  pe_subnet_prefix    = var.pe_subnet_prefix
+  appgw_subnet_name   = "snet-appgw-${var.project_name}-${var.environment}"
+  appgw_subnet_prefix = var.appgw_subnet_prefix
+  tags                = var.tags
 }
 
-module "keyvault" {
-  source              = "../../modules/keyvault"
-  resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
-  environment         = var.environment
-  keyvault_name       = "kv-${var.environment}-${local.suffix}"
-  tenant_id           = data.azurerm_client_config.current. tenant_id
-  pe_subnet_id        = module.networking.pe_subnet_id
-  private_dns_zone_id = module.networking.dns_zone_ids["keyvault"]
-  tags                = local.tags
-  depends_on          = [module.networking]
-}
-
-module "storage" {
-  source               = "../../modules/storage"
-  resource_group_name  = azurerm_resource_group.main.name
-  location             = azurerm_resource_group.main.location
-  environment          = var.environment
-  storage_account_name = "st${var.environment}${local.suffix}"
-  pe_subnet_id         = module. networking.pe_subnet_id
-  private_dns_zone_id  = module.networking.dns_zone_ids["storage"]
-  tags                 = local.tags
-  depends_on           = [module.networking]
-}
-
-module "sql_database" {
-  source              = "../../modules/sql-database"
-  resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
-  environment         = var.environment
-  sql_server_name     = "sql-${var.environment}-${local.suffix}"
-  sql_database_name   = "sqldb-customerservice"
-  admin_login         = var.sql_admin_login
-  admin_password      = var.sql_admin_password
-  pe_subnet_id        = module. networking.pe_subnet_id
-  private_dns_zone_id = module.networking.dns_zone_ids["sql"]
-  tags                = local. tags
-  depends_on          = [module.networking]
-}
-
+# Azure Container Registry
 module "acr" {
   source              = "../../modules/acr"
-  resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
-  environment         = var.environment
-  acr_name            = "acr${var.environment}${local.suffix}"
-  pe_subnet_id        = module.networking.pe_subnet_id
-  private_dns_zone_id = module.networking.dns_zone_ids["acr"]
-  tags                = local. tags
-  depends_on          = [module.networking]
+  resource_group_name = data.azurerm_resource_group.main.name
+  location            = data.azurerm_resource_group.main.location
+  acr_name            = "acr${var.project_name}${var.environment}"
+  sku                 = "Premium"
+  admin_enabled       = false
+  tags                = var.tags
 }
 
+# Azure Kubernetes Service
+module "aks" {
+  source                      = "../../modules/aks"
+  resource_group_name         = data.azurerm_resource_group.main.name
+  location                    = data.azurerm_resource_group.main. location
+  cluster_name                = "aks-${var.project_name}-${var.environment}"
+  dns_prefix                  = "aks-${var.project_name}-${var.environment}"
+  kubernetes_version          = var.kubernetes_version
+  subnet_id                   = module.networking.aks_subnet_id
+  log_analytics_workspace_id  = azurerm_log_analytics_workspace.main.id
+  acr_id                      = module. acr.acr_id
+  system_node_count           = 2
+  system_node_vm_size         = "Standard_D2s_v3"
+  system_node_min_count       = 2
+  system_node_max_count       = 5
+  user_node_count             = 2
+  user_node_vm_size           = "Standard_D4s_v3"
+  user_node_min_count         = 2
+  user_node_max_count         = 10
+  tags                        = var. tags
+}
+
+# Key Vault
+module "keyvault" {
+  source              = "../../modules/keyvault"
+  resource_group_name = data.azurerm_resource_group.main.name
+  location            = data.azurerm_resource_group.main.location
+  keyvault_name       = "kv-${var.project_name}-${var.environment}"
+  tenant_id           = data.azurerm_client_config.current. tenant_id
+  sku_name            = "standard"
+  tags                = var.tags
+}
+
+# Storage Account
+module "storage" {
+  source               = "../../modules/storage"
+  resource_group_name  = data.azurerm_resource_group.main.name
+  location             = data.azurerm_resource_group.main.location
+  storage_account_name = "st${var.project_name}${var.environment}"
+  account_tier         = "Standard"
+  replication_type     = "LRS"
+  tags                 = var.tags
+}
+
+# SQL Database
+module "sql_database" {
+  source              = "../../modules/sql-database"
+  resource_group_name = data. azurerm_resource_group. main.name
+  location            = data.azurerm_resource_group.main.location
+  server_name         = "sql-${var.project_name}-${var.environment}"
+  database_name       = "sqldb-${var.project_name}-${var.environment}"
+  admin_login         = var.sql_admin_login
+  admin_password      = var.sql_admin_password
+  tags                = var. tags
+}
+
+# Azure OpenAI (West US for compliance)
 module "openai" {
   source              = "../../modules/openai"
-  resource_group_name = azurerm_resource_group.main.name
-  openai_location     = var.openai_location
-  aks_location        = var. aks_location
-  environment         = var.environment
-  openai_name         = "oai-${var.environment}-${local.suffix}"
-  pe_subnet_id        = module. networking.pe_subnet_id
-  private_dns_zone_id = module.networking.dns_zone_ids["openai"]
-  tags                = local.tags
-  depends_on          = [module.networking]
-}
-
-module "aks" {
-  source              = "../../modules/aks"
-  resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
-  environment         = var.environment
-  cluster_name        = "aks-${var.environment}-${local. suffix}"
-  dns_prefix          = "aks-${var.environment}"
-  kubernetes_version  = "1.28"
-  aks_subnet_id       = module.networking. aks_subnet_id
-  acr_id              = module.acr.acr_id
-  tags                = local.tags
-  depends_on          = [module. networking, module.acr]
-}
-
-resource "azurerm_role_assignment" "aks_keyvault" {
-  scope                            = module.keyvault.keyvault_id
-  role_definition_name             = "Key Vault Secrets User"
-  principal_id                     = module.aks.cluster_identity_principal_id
-  skip_service_principal_aad_check = true
-}
-
-resource "azurerm_key_vault_secret" "sql_connection" {
-  name         = "sql-connection-string"
-  value        = "Server=tcp:${module.sql_database.sql_server_fqdn},1433;Database=${module.sql_database.sql_database_name};"
-  key_vault_id = module.keyvault.keyvault_id
-  depends_on   = [module.keyvault]
-}
-
-resource "azurerm_key_vault_secret" "openai_key" {
-  name         = "openai-api-key"
-  value        = module.openai.openai_primary_key
-  key_vault_id = module.keyvault.keyvault_id
-  depends_on   = [module.keyvault, module.openai]
+  resource_group_name = data.azurerm_resource_group.main. name
+  location            = var.location_secondary
+  openai_name         = "oai-${var.project_name}-${var.environment}"
+  sku_name            = "S0"
+  tags                = var. tags
 }

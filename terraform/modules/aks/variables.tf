@@ -1,79 +1,36 @@
 variable "resource_group_name" {
-  description = "Name of the resource group"
+  description = "Resource group name"
   type        = string
 }
- 
+
 variable "location" {
   description = "Azure region"
   type        = string
 }
 
-variable "environment" {
-  description = "Environment name"
-  type        = string
-}
-
 variable "cluster_name" {
-  description = "Name of the AKS cluster"
+  description = "AKS cluster name"
   type        = string
 }
 
 variable "dns_prefix" {
-  description = "DNS prefix for AKS"
+  description = "DNS prefix"
   type        = string
 }
 
 variable "kubernetes_version" {
   description = "Kubernetes version"
   type        = string
-  default     = "1.28"
 }
- 
-variable "aks_subnet_id" {
-  description = "Subnet ID for AKS nodes"
+
+variable "subnet_id" {
+  description = "Subnet ID for AKS"
   type        = string
 }
 
-variable "system_node_count" {
-  description = "Number of system nodes"
-  type        = number
-  default     = 2
-}
-
-variable "system_vm_size" {
-  description = "VM size for system nodes"
+variable "log_analytics_workspace_id" {
+  description = "Log Analytics workspace ID"
   type        = string
-  default     = "Standard_D2s_v3"
-}
- 
-variable "user_node_count" {
-  description = "Number of user nodes"
-  type        = number
-  default     = 2
-}
-
-variable "user_vm_size" {
-  description = "VM size for user nodes"
-  type        = string
-  default     = "Standard_D4s_v3"
-}
-
-variable "enable_auto_scaling" {
-  description = "Enable auto scaling"
-  type        = bool
-  default     = true
-}
-
-variable "min_node_count" {
-  description = "Minimum node count"
-  type        = number
-  default     = 1
-}
- 
-variable "max_node_count" {
-  description = "Maximum node count"
-  type        = number
-  default     = 5
 }
 
 variable "acr_id" {
@@ -82,8 +39,56 @@ variable "acr_id" {
   default     = ""
 }
 
+variable "system_node_count" {
+  description = "System node pool count"
+  type        = number
+  default     = 2
+}
+
+variable "system_node_vm_size" {
+  description = "System node VM size"
+  type        = string
+  default     = "Standard_D2s_v3"
+}
+
+variable "system_node_min_count" {
+  description = "System node min count"
+  type        = number
+  default     = 2
+}
+
+variable "system_node_max_count" {
+  description = "System node max count"
+  type        = number
+  default     = 5
+}
+
+variable "user_node_count" {
+  description = "User node pool count"
+  type        = number
+  default     = 2
+}
+
+variable "user_node_vm_size" {
+  description = "User node VM size"
+  type        = string
+  default     = "Standard_D4s_v3"
+}
+
+variable "user_node_min_count" {
+  description = "User node min count"
+  type        = number
+  default     = 2
+}
+
+variable "user_node_max_count" {
+  description = "User node max count"
+  type        = number
+  default     = 10
+}
+
 variable "tags" {
-  description = "Tags"
+  description = "Tags for resources"
   type        = map(string)
   default     = {}
 }

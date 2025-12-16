@@ -1,5 +1,5 @@
 variable "resource_group_name" {
-  description = "Name of the resource group"
+  description = "Resource group name"
   type        = string
 }
 
@@ -8,45 +8,24 @@ variable "location" {
   type        = string
 }
 
-variable "environment" {
-  description = "Environment name"
+variable "keyvault_name" {
+  description = "Key Vault name"
   type        = string
 }
 
-variable "keyvault_name" {
-  description = "Name of the Key Vault"
-  type        = string
-}
- 
 variable "tenant_id" {
   description = "Azure AD tenant ID"
   type        = string
 }
- 
-variable "pe_subnet_id" {
-  description = "Subnet ID for private endpoint"
+
+variable "sku_name" {
+  description = "Key Vault SKU"
   type        = string
-}
-
-variable "private_dns_zone_id" {
-  description = "Private DNS zone ID"
-  type        = string
-}
-
-variable "soft_delete_retention_days" {
-  description = "Soft delete retention days"
-  type        = number
-  default     = 7
-}
-
-variable "purge_protection_enabled" {
-  description = "Enable purge protection"
-  type        = bool
-  default     = false
+  default     = "standard"
 }
 
 variable "tags" {
-  description = "Tags"
+  description = "Tags for resources"
   type        = map(string)
   default     = {}
 }

@@ -1,5 +1,5 @@
 variable "resource_group_name" {
-  description = "Name of the resource group"
+  description = "Resource group name"
   type        = string
 }
 
@@ -7,24 +7,19 @@ variable "location" {
   description = "Azure region"
   type        = string
 }
- 
-variable "environment" {
-  description = "Environment name"
-  type        = string
-}
- 
-variable "sql_server_name" {
-  description = "Name of the SQL server"
+
+variable "server_name" {
+  description = "SQL Server name"
   type        = string
 }
 
-variable "sql_database_name" {
-  description = "Name of the SQL database"
+variable "database_name" {
+  description = "SQL Database name"
   type        = string
 }
 
 variable "admin_login" {
-  description = "SQL admin username"
+  description = "SQL admin login"
   type        = string
   sensitive   = true
 }
@@ -34,37 +29,9 @@ variable "admin_password" {
   type        = string
   sensitive   = true
 }
- 
-variable "pe_subnet_id" {
-  description = "Subnet ID for private endpoint"
-  type        = string
-}
- 
-variable "private_dns_zone_id" {
-  description = "Private DNS zone ID"
-  type        = string
-}
-
-variable "sku_name" {
-  description = "SKU name"
-  type        = string
-  default     = "S1"
-}
- 
-variable "max_size_gb" {
-  description = "Max size in GB"
-  type        = number
-  default     = 32
-}
-
-variable "geo_backup_enabled" {
-  description = "Enable geo backups"
-  type        = bool
-  default     = true
-}
 
 variable "tags" {
-  description = "Tags"
+  description = "Tags for resources"
   type        = map(string)
   default     = {}
 }
