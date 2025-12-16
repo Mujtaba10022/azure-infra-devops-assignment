@@ -1,0 +1,74 @@
+# Default deny all ingress traffic
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name:  default-deny-ingress
+  namespace: staging
+spec:
+  podSelector:  {}
+  policyTypes: 
+    - Ingress
+---
+# Default deny all egress traffic
+apiVersion: networking.k8s. io/v1
+kind:  NetworkPolicy
+metadata:
+  name: default-deny-egress
+  namespace: staging
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+---
+# Allow ingress from ingress controller
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-controller
+  namespace: staging
+spec: 
+  podSelector: 
+    matchLabels: 
+      app: customer-service-portal
+  policyTypes: 
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+      ports:
+        - protocol:  TCP
+          port: 8080
+---
+# Allow egress for application
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: 
+  name: app-egress-policy
+  namespace: staging
+spec:
+  podSelector:
+    matchLabels: 
+      app: customer-service-portal
+  policyTypes:
+    - Egress
+  egress:
+    # Allow DNS
+    - to:
+        - namespaceSelector:  {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports: 
+        - protocol: UDP
+          port: 53
+    # Allow Azure Private Endpoints subnet
+    - to:
+        - ipBlock:
+            cidr:  10.0.4.0/24
+      ports:
+        - protocol:  TCP
+          port: 443
+        - protocol: TCP
+          port: 1433

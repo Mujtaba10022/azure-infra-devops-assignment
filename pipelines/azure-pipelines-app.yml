@@ -1,0 +1,49 @@
+trigger:
+  branches: 
+    include:
+      - main
+  paths: 
+    include:
+      - app/**
+      - kubernetes/**
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  - name: IMAGE_NAME
+    value: customer-service-portal
+  - name: NAMESPACE
+    value: staging
+ 
+stages:
+  - stage: Build
+    jobs: 
+      - job: Build
+        steps:
+          - task: Docker@2
+            displayName: Build and Push
+            inputs:
+              containerRegistry: ACR-ServiceConnection
+              repository: customer-service-portal
+              command: buildAndPush
+              Dockerfile: app/Dockerfile
+              tags: latest
+
+  - stage: Deploy
+    dependsOn: Build
+    jobs:
+      - deployment: Deploy
+        environment: aks-staging
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: KubernetesManifest@1
+                  displayName:  Deploy to AKS
+                  inputs:
+                    action: deploy
+                    connectionType: azureResourceManager
+                    azureSubscriptionConnection: Azure-ServiceConnection
+                    namespace: staging
+                    manifests:  kubernetes/base/*.yaml

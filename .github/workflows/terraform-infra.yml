@@ -1,0 +1,23 @@
+name: Terraform Infrastructure
+
+on:
+  push: 
+    branches: [main]
+    paths: [terraform/**]
+  workflow_dispatch:
+
+jobs: 
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with: 
+          terraform_version: 1.5.0
+      - run: terraform init
+        working-directory:  terraform/environments/staging
+      - run: terraform plan
+        working-directory: terraform/environments/staging
+      - run:  terraform apply -auto-approve
+        if: github.ref == 'refs/heads/main'
+        working-directory: terraform/environments/staging

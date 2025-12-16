@@ -1,0 +1,39 @@
+# Terraform
+*.tfstate
+*.tfstate.*
+*.tfvars
+! example.tfvars
+. terraform/
+.terraform. lock.hcl
+crash.log
+ 
+# Environment
+.env
+*.env
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+ 
+# Python
+__pycache__/
+*.py[cod]
+venv/
+ 
+# Kubernetes
+kubeconfig
+*.kubeconfig
+
+# Secrets
+secrets/
+*.pem
+*.key
+
+# Logs
+*.log
+logs/

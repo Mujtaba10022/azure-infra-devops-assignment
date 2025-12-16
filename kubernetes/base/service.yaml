@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: customer-service-portal
+  namespace: staging
+spec: 
+  type: ClusterIP
+  selector:
+    app: customer-service-portal
+  ports:
+    - port: 80
+      targetPort: 8000

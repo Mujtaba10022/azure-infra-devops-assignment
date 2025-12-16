@@ -1,0 +1,23 @@
+name: Application Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:  [app/**, kubernetes/**]
+  workflow_dispatch:
+
+jobs: 
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/login@v2
+        with:
+          creds:  ${{ secrets.AZURE_CREDENTIALS }}
+      - run: |
+          az acr login --name ${{ secrets.ACR_NAME }}
+          docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/app:latest ./app
+          docker push ${{ secrets. ACR_LOGIN_SERVER }}/app: latest
+      - run: |
+          az aks get-credentials -g ${{ secrets.AKS_RG }} -n ${{ secrets.AKS_NAME }}
+          kubectl apply -f kubernetes/base/ -n staging
