@@ -1,17 +1,19 @@
-name: 'Deploy Infrastructure and App'
+name: Deploy Infrastructure and App
 
-on: 
-  push: 
+on:
+  push:
     branches: [ main ]
-  workflow_dispatch:
+  workflow_dispatch: 
 
-permissions: 
-  contents: read
+env:
+  ARM_CLIENT_ID: ${{ secrets. AZURE_CLIENT_ID }}
+  ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
 
-jobs: 
+jobs:
   deploy:
-    name:  'Deploy'
-    runs-on: ubuntu-latest
+    runs-on:  ubuntu-latest
     environment: staging
 
     steps:
@@ -23,46 +25,24 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name:  Check/Create AKS Cluster
-      run: |
-        if az aks show --name aks-gm-staging --resource-group RG-GM_Assessment &>/dev/null; then
-          echo "AKS cluster already exists"
-        else
-          echo "Creating AKS cluster..."
-          az aks create \
-            --resource-group RG-GM_Assessment \
-            --name aks-gm-staging \
-            --node-count 1 \
-            --node-vm-size Standard_B2s \
-            --generate-ssh-keys \
-            --enable-managed-identity \
-            --tags Environment=staging Project=GM-Assessment
-        fi
-
-    - name: Get AKS Credentials
+    - name:  Get AKS Credentials
       run: |
         az aks get-credentials --resource-group RG-GM_Assessment --name aks-gm-staging --overwrite-existing
 
-    - name: Deploy Application
+    - name: Deploy SQL Agent
       run: |
-        kubectl apply -f k8s/webapp.yaml
+        kubectl apply -f k8s/sql-agent. yaml
         echo "Waiting for deployment..."
-        kubectl rollout status deployment/webapp --timeout=120s
+        kubectl rollout status deployment/sql-agent --timeout=300s
 
-    - name: Get Service Info
+    - name: Get SQL Agent Service Info
       run: |
-        echo "=== ALL SERVICES ==="
-        kubectl get services
+        echo "=== SQL AGENT PODS ==="
+        kubectl get pods -l app=sql-agent
         echo ""
         echo "=== SQL AGENT SERVICE ==="
         kubectl get service sql-agent-service
         echo ""
-        echo "=== WEBAPP SERVICE ==="
-        kubectl get service webapp-service
-        echo ""
-        echo "=== ALL PODS ==="
-        kubectl get pods
-        echo ""
-        echo "=== SQL AGENT URL ==="
+        echo "=== SQL AGENT PORTAL URL ==="
         SQL_IP=$(kubectl get service sql-agent-service -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-        echo "SQL Agent Portal: http://$SQL_IP"
+        echo "✅ SQL Agent Portal: http://$SQL_IP"
