@@ -1,23 +1,42 @@
 name: Application Deploy
 
 on:
-  push:
-    branches: [main]
-    paths:  [app/**, kubernetes/**]
+  push: 
+    branches: [ main ]
+    paths:
+      - 'app/**'
   workflow_dispatch:
 
-jobs: 
+jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on:  ubuntu-latest
+    environment: staging
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: azure/login@v2
-        with:
-          creds:  ${{ secrets.AZURE_CREDENTIALS }}
-      - run: |
-          az acr login --name ${{ secrets.ACR_NAME }}
-          docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/app:latest ./app
-          docker push ${{ secrets. ACR_LOGIN_SERVER }}/app: latest
-      - run: |
-          az aks get-credentials -g ${{ secrets.AKS_RG }} -n ${{ secrets.AKS_NAME }}
-          kubectl apply -f kubernetes/base/ -n staging
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with: 
+        creds: ${{ secrets. AZURE_CREDENTIALS }}
+
+    - name: Build and Push to ACR
+      run: |
+        az acr login --name acrgmstaging
+        cd app
+        docker build -t acrgmstaging. azurecr.io/sql-agent: ${{ github.sha }} . 
+        docker build -t acrgmstaging. azurecr.io/sql-agent:latest .
+        docker push acrgmstaging.azurecr.io/sql-agent:${{ github.sha }}
+        docker push acrgmstaging.azurecr.io/sql-agent:latest
+
+    - name: Deploy to AKS
+      run: |
+        az aks get-credentials --resource-group RG-GM_Assessment --name aks-gm-staging --overwrite-existing
+        kubectl rollout restart deployment/sql-agent
+        kubectl rollout status deployment/sql-agent --timeout=300s
+
+    - name: Get Service Info
+      run: |
+        kubectl get pods -l app=sql-agent
+        kubectl get service sql-agent-service
