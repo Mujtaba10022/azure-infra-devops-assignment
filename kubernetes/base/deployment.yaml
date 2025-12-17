@@ -1,46 +1,84 @@
-apiVersion:  apps/v1
+apiVersion: apps/v1
 kind:  Deployment
 metadata:
-  name:  customer-service-portal
+  name: customer-service-portal
   namespace: staging
-spec: 
+  labels:
+    app: customer-service-portal
+    version: v1
+spec:
   replicas: 2
   selector:
     matchLabels:
       app: customer-service-portal
-  template: 
-    metadata:
-      labels: 
+  template:
+    metadata: 
+      labels:
         app: customer-service-portal
+        version: v1
+        azure.workload.identity/use: "true"
     spec:
       serviceAccountName: customer-service-portal-sa
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
+        fsGroup: 1000
       containers:
         - name: app
-          image: ACR_LOGIN_SERVER/customer-service-portal:IMAGE_TAG
+          image: ACR_LOGIN_SERVER/customer-service-portal:latest
+          imagePullPolicy: Always
           ports:
-            - containerPort: 8000
+            - containerPort:  8080
+              protocol: TCP
           envFrom:
             - configMapRef:
                 name: app-config
+          env:
+            - name:  AZURE_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['azure.workload.identity/client-id']
           resources:
             requests:
-              memory: "256Mi"
-              cpu: "250m"
-            limits:
-              memory: "512Mi"
+              cpu: "100m"
+              memory:  "256Mi"
+            limits: 
               cpu: "500m"
+              memory: "512Mi"
           livenessProbe:
             httpGet:
-              path: /health
-              port: 8000
+              path:  /health
+              port: 8080
             initialDelaySeconds: 30
             periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
           readinessProbe:
             httpGet:
               path: /health
-              port: 8000
+              port:  8080
             initialDelaySeconds: 5
             periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation:  false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: 
+                - ALL
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name:  tmp
+          emptyDir:  {}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution: 
+            - weight: 100
+              podAffinityTerm:
+                labelSelector: 
+                  matchLabels: 
+                    app: customer-service-portal
+                topologyKey: kubernetes.io/hostname

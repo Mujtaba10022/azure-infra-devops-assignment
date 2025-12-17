@@ -4,22 +4,25 @@ metadata:
   name: sql-agent-secrets
 type: Opaque
 stringData:
+  AZURE_OPENAI_KEY: "your-openai-key-here"
   SQL_PASSWORD: "Password@123"
 ---
 apiVersion: v1
-kind: ConfigMap
+kind:  ConfigMap
 metadata:
-  name:  sql-agent-config
-data: 
+  name: sql-agent-config
+data:
+  AZURE_OPENAI_ENDPOINT: "https://oai-gm-staging. openai.azure. com/"
+  AZURE_OPENAI_DEPLOYMENT:  "gpt-35-turbo"
   SQL_SERVER: "sqlgmstaging2025.database.windows.net"
   SQL_DATABASE: "customerdb"
   SQL_USERNAME: "sqladmin"
 ---
 apiVersion: apps/v1
-kind: Deployment
-metadata: 
+kind:  Deployment
+metadata:
   name: sql-agent
-  labels:
+  labels: 
     app: sql-agent
 spec:
   replicas: 2
@@ -30,34 +33,34 @@ spec:
     metadata:
       labels:
         app: sql-agent
-    spec: 
+    spec:
       containers:
       - name: sql-agent
-        image:  acrgmstaging.azurecr.io/sql-agent:latest
-        ports:
+        image: acrgmstaging.azurecr.io/sql-agent:latest
+        ports: 
         - containerPort: 8080
         envFrom:
         - configMapRef:
-            name: sql-agent-config
+            name:  sql-agent-config
         - secretRef:
             name: sql-agent-secrets
-        resources:
+        resources: 
           requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
+            memory:  "256Mi"
+            cpu:  "250m"
+          limits: 
             memory: "512Mi"
             cpu: "500m"
 ---
 apiVersion: v1
 kind: Service
-metadata:
+metadata: 
   name: sql-agent-service
 spec:
   type: LoadBalancer
-  selector: 
+  selector:
     app: sql-agent
   ports:
   - protocol: TCP
-    port:  80
+    port: 80
     targetPort: 8080

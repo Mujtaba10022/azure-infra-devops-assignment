@@ -1,11 +1,9 @@
 import os
 from flask import Flask, render_template, request, jsonify
 import pyodbc
-import json
 
 app = Flask(__name__)
 
-# SQL Database Configuration
 SQL_SERVER = os.getenv("SQL_SERVER", "sqlgmstaging2025.database.windows.net")
 SQL_DATABASE = os.getenv("SQL_DATABASE", "customerdb")
 SQL_USERNAME = os.getenv("SQL_USERNAME", "sqladmin")
@@ -62,7 +60,7 @@ def get_products():
 def get_orders():
     results, error = execute_query("SELECT * FROM Orders")
     if error:
-        return jsonify({"error":  error}), 500
+        return jsonify({"error": error}), 500
     return jsonify(results)
 
 @app.route("/api/query", methods=["POST"])
