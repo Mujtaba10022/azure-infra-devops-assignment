@@ -49,9 +49,20 @@ jobs:
         echo "Waiting for deployment..."
         kubectl rollout status deployment/webapp --timeout=120s
 
-    - name: Get Application URL
+    - name: Get Service Info
       run: |
-        echo "Waiting for LoadBalancer IP..."
-        sleep 60
+        echo "=== ALL SERVICES ==="
+        kubectl get services
+        echo ""
+        echo "=== SQL AGENT SERVICE ==="
+        kubectl get service sql-agent-service
+        echo ""
+        echo "=== WEBAPP SERVICE ==="
         kubectl get service webapp-service
+        echo ""
+        echo "=== ALL PODS ==="
         kubectl get pods
+        echo ""
+        echo "=== SQL AGENT URL ==="
+        SQL_IP=$(kubectl get service sql-agent-service -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+        echo "SQL Agent Portal: http://$SQL_IP"
