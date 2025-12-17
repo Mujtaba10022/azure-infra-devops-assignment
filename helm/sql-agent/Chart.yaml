@@ -1,0 +1,8 @@
+apiVersion: v2
+name: sql-agent
+description: SQL Agent Customer Portal Helm Chart
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+maintainers:
+  - name:  Mujtaba
