@@ -1,12 +1,15 @@
 name: Build and Deploy SQL Agent
 
-on:
+on: 
   push:
     branches: [ main ]
+    paths:
+      - 'app/**'
+      - 'k8s/sql-agent.yaml'
   workflow_dispatch:
 
-jobs:
-  build-and-deploy:
+jobs: 
+  build-and-deploy: 
     runs-on: ubuntu-latest
     environment: staging
 
@@ -16,8 +19,8 @@ jobs:
 
     - name: Azure Login
       uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+      with: 
+        creds: ${{ secrets. AZURE_CREDENTIALS }}
 
     - name: Login to ACR
       run: az acr login --name acrgmstaging
@@ -36,13 +39,14 @@ jobs:
     - name:  Attach ACR to AKS
       run: az aks update --name aks-gm-staging --resource-group RG-GM_Assessment --attach-acr acrgmstaging || true
 
-    - name: Deploy to AKS
+    - name: Deploy SQL Agent to AKS
       run: |
-        kubectl apply -f k8s/sql-agent.yaml
+        kubectl apply -f k8s/sql-agent. yaml
         kubectl rollout status deployment/sql-agent --timeout=300s || true
 
-    - name: Get Service URL
+    - name:  Get Service URL
       run: |
-        sleep 30
+        echo "Waiting for LoadBalancer..."
+        sleep 60
         kubectl get service sql-agent-service
-        kubectl get pods
+        kubectl get pods -l app=sql-agent

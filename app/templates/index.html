@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SQL Agent - Customer Portal</title>
+    <style>
+        * { margin: 0; padding:  0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background:  linear-gradient(135deg, #667eea, #764ba2); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        h1 { color:  white; text-align: center; margin-bottom: 30px; }
+        .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .card h2 { color: #667eea; margin-bottom: 15px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #667eea; color: white; }
+        tr:hover { background: #f5f5f5; }
+        .btn { background: #667eea; color:  white; border: none; padding: 10px 20px; border-radius:  5px; cursor: pointer; margin: 5px; }
+        .btn:hover { background: #5a6fd6; }
+        #queryInput { width: 100%; padding: 15px; border: 2px solid #ddd; border-radius:  10px; font-size:  16px; margin-bottom: 10px; }
+        .results { background: #f8f9fa; padding: 15px; border-radius: 10px; max-height: 300px; overflow:  auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SQL Agent Customer Portal</h1>
+        <div class="card">
+            <h2>Quick Actions</h2>
+            <button class="btn" onclick="loadCustomers()">View Customers</button>
+            <button class="btn" onclick="loadProducts()">View Products</button>
+            <button class="btn" onclick="loadOrders()">View Orders</button>
+        </div>
+        <div class="card">
+            <h2>Custom Query</h2>
+            <input type="text" id="queryInput" placeholder="SELECT * FROM Customers WHERE City = 'New York'">
+            <button class="btn" onclick="runQuery()">Run Query</button>
+        </div>
+        <div class="card">
+            <h2>Results</h2>
+            <div id="results" class="results">Click a button to load data...</div>
+        </div>
+    </div>
+    <script>
+        async function loadCustomers() {
+            const res = await fetch('/api/customers');
+            const data = await res.json();
+            displayTable(data);
+        }
+        async function loadProducts() {
+            const res = await fetch('/api/products');
+            const data = await res.json();
+            displayTable(data);
+        }
+        async function loadOrders() {
+            const res = await fetch('/api/orders');
+            const data = await res.json();
+            displayTable(data);
+        }
+        async function runQuery() {
+            const query = document.getElementById('queryInput').value;
+            const res = await fetch('/api/query', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON. stringify({query})
+            });
+            const data = await res.json();
+            if (data.error) {
+                document.getElementById('results').innerHTML = '<p style="color: red;">Error: ' + data. error + '</p>';
+            } else {
+                displayTable(data. results);
+            }
+        }
+        function displayTable(data) {
+            if (!data || data.length === 0) {
+                document.getElementById('results').innerHTML = '<p>No results</p>';
+                return;
+            }
+            let html = '<table><tr>';
+            Object.keys(data[0]).forEach(k => html += '<th>' + k + '</th>');
+            html += '</tr>';
+            data. forEach(row => {
+                html += '<tr>';
+                Object. values(row).forEach(v => html += '<td>' + v + '</td>');
+                html += '</tr>';
+            });
+            html += '</table>';
+            document.getElementById('results').innerHTML = html;
+        }
+    </script>
+</body>
+</html>
