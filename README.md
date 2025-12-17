@@ -1,38 +1,51 @@
-# Azure Infrastructure DevOps Assignment
+# Azure Infrastructure DevOps Assessment
 
-## 🌐 Live Application
-- **SQL Agent Portal:** http://172.171.132.109
-- **Webapp:** http://74.179.233.242
+## Live Application:  http://172.171.132.109
 
-## 📋 Project Overview
-A complete Azure cloud-native application with:
-- Customer database management
-- REST API endpoints
-- Web-based SQL query interface
+## Project Overview
 
-## 🏗️ Architecture
-- **Azure Kubernetes Service (AKS):** aks-gm-staging
-- **Azure Container Registry (ACR):** acrgmstaging
-- **Azure SQL Server:** sqlgmstaging2025
-- **Database:** customerdb
+Enterprise-grade Azure cloud infrastructure with: 
+- Private Endpoints for SQL, KeyVault, Storage
+- Private DNS Zones for secure name resolution
+- Modular Terraform IaC (8 modules)
+- CI/CD with GitHub Actions (56+ runs)
+- AKS with LoadBalancer
 
-## 🔗 API Endpoints
-| Endpoint | Description |
-|----------|-------------|
-| GET /api/health | Health check |
-| GET /api/customers | List all customers |
-| GET /api/products | List all products |
-| GET /api/orders | List all orders |
-| POST /api/query | Run custom SQL query |
+## Azure Resources
 
-## 🛠️ Technologies Used
-- Python Flask
-- Gunicorn
-- Docker
-- Kubernetes
-- Azure SQL Database
-- GitHub Actions CI/CD
-- Terraform
+| Resource | Name | Location |
+|----------|------|----------|
+| AKS Cluster | aks-gm-staging | East US |
+| Container Registry | acrgmstaging | East US |
+| SQL Server | sqlgmstaging2025 | West US 2 |
+| Key Vault | kv-gm-staging | East US |
+| Storage Account | stgmstaging | East US |
+| OpenAI Service | oai-gm-staging | West US |
+| Virtual Network | vnet-gm-staging | East US |
 
-## 👤 Author
-Mujtaba - Azure DevOps Assignment
+## Private Endpoints
+
+| Endpoint | Target | Status |
+|----------|--------|--------|
+| pe-sql-staging | Azure SQL | Active |
+| pe-keyvault-staging | Key Vault | Active |
+| pe-storage-staging | Storage | Active |
+
+## Private DNS Zones
+
+- privatelink.database.windows.net
+- privatelink.vaultcore.azure.net
+- privatelink.blob.core.windows.net
+- privatelink.azurecr.io
+- privatelink. openai.azure.com
+
+## API Endpoints
+
+- GET /api/health - Health check
+- GET /api/customers - List customers
+- GET /api/products - List products
+- GET /api/orders - List orders
+
+## Author
+
+Ghulam Mujtaba - Azure DevOps Engineer
