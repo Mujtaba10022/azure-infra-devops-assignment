@@ -1,0 +1,48 @@
+name: Build and Deploy SQL Agent
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Login to ACR
+      run: az acr login --name acrgmstaging
+
+    - name: Build and Push Image
+      run: |
+        cd app
+        docker build -t acrgmstaging.azurecr.io/sql-agent:${{ github.sha }} .
+        docker build -t acrgmstaging. azurecr.io/sql-agent:latest .
+        docker push acrgmstaging.azurecr.io/sql-agent:${{ github.sha }}
+        docker push acrgmstaging.azurecr.io/sql-agent:latest
+
+    - name: Get AKS Credentials
+      run: az aks get-credentials --resource-group RG-GM_Assessment --name aks-gm-staging --overwrite-existing
+
+    - name:  Attach ACR to AKS
+      run: az aks update --name aks-gm-staging --resource-group RG-GM_Assessment --attach-acr acrgmstaging || true
+
+    - name: Deploy to AKS
+      run: |
+        kubectl apply -f k8s/sql-agent.yaml
+        kubectl rollout status deployment/sql-agent --timeout=300s || true
+
+    - name: Get Service URL
+      run: |
+        sleep 30
+        kubectl get service sql-agent-service
+        kubectl get pods

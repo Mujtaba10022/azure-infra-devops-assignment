@@ -1,49 +1,22 @@
-# ============================================
-# Multi-stage Dockerfile for SQL Agent Portal
-# ============================================
- 
-# Stage 1: Builder
-FROM python:3.11-slim AS builder
- 
+FROM python:3.11-slim
+
 WORKDIR /app
- 
-# Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
+
+RUN apt-get update && apt-get install -y curl gnupg2 unixodbc-dev gcc g++ \
+    && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+    && curl https://packages.microsoft.com/config/debian/11/prod. list > /etc/apt/sources.list.d/mssql-release.list \
+    && apt-get update \
+    && ACCEPT_EULA=Y apt-get install -y msodbcsql18 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy and install requirements
-COPY requirements.txt . 
-RUN pip install --no-cache-dir --user -r requirements.txt
+COPY requirements. txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Stage 2: Production
-FROM python:3.11-slim AS production
- 
-# Security:  Create non-root user
-RUN groupadd -r appgroup && useradd -r -g appgroup appuser
+COPY .  .
 
-WORKDIR /app
- 
-# Copy dependencies from builder
-COPY --from=builder /root/.local /home/appuser/.local
- 
-# Copy application code
-COPY --chown=appuser:appgroup src/ ./src/
-
-# Set environment variables
-ENV PATH=/home/appuser/.local/bin: $PATH \
-    PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
-
-# Security: Switch to non-root user
+RUN useradd -m appuser && chown -R appuser:appuser /app
 USER appuser
 
-# Expose port
 EXPOSE 8080
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')" || exit 1
-
-# Run application
-CMD ["python", "src/main.py"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "2", "main:app"]
