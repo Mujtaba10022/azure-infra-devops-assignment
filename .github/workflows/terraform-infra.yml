@@ -1,7 +1,7 @@
 name: Deploy Infrastructure and App
 
 on:
-  push:
+  push: 
     branches: [ main ]
   workflow_dispatch: 
 
@@ -21,7 +21,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Azure Login
-      uses: azure/login@v1
+      uses:  azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -29,9 +29,9 @@ jobs:
       run: |
         az aks get-credentials --resource-group RG-GM_Assessment --name aks-gm-staging --overwrite-existing
 
-    - name: Deploy SQL Agent
+    - name:  Deploy SQL Agent
       run: |
-        kubectl apply -f k8s/sql-agent. yaml
+        kubectl apply -f k8s/sql-agent.yaml
         echo "Waiting for deployment..."
         kubectl rollout status deployment/sql-agent --timeout=300s
 
@@ -45,4 +45,4 @@ jobs:
         echo ""
         echo "=== SQL AGENT PORTAL URL ==="
         SQL_IP=$(kubectl get service sql-agent-service -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-        echo "✅ SQL Agent Portal: http://$SQL_IP"
+        echo "SQL Agent Portal: http://$SQL_IP"
