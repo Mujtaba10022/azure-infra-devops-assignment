@@ -381,13 +381,13 @@ kubectl logs -l app=sql-agent --tail=50
 
 ```bash
 # Health Check
-curl -s http://172.171.132.109/api/health
+curl -s [http://1](http://4.157.31.99)/api/health
 
 # Test Customers API
-curl -s http://172.171.132.109/api/customers
+curl -s [http://172.171.132.109](http://4.157.31.99)/api/customers
 
 # Test AI Query
-curl -s -X POST http://172.171.132.109/api/ask \
+curl -s -X POST [http://172.171.132.109](http://4.157.31.99)/api/ask \
   -H "Content-Type:  application/json" \
   -d '{"question":  "show all customers"}'
 ```
@@ -396,7 +396,7 @@ curl -s -X POST http://172.171.132.109/api/ask \
 
 ```powershell
 # Health Check
-Invoke-WebRequest -Uri "http://172.171.132.109/api/health" -UseBasicParsing | Select-Object -ExpandProperty Content
+Invoke-WebRequest -Uri "[http://172.171.132.109](http://4.157.31.99)/api/health" -UseBasicParsing | Select-Object -ExpandProperty Content
 
 # Verify Pods
 kubectl get pods -l app=sql-agent
@@ -553,13 +553,13 @@ CMD gunicorn --bind 0.0.0.0:8080 --workers 2 --timeout 300 --keep-alive 5 main:a
 
 ▶️ **[Watch Full Demo on YouTube](https://youtu.be/eto3kSOqfFc)**
 
-**Live Application**:  http://172.171.132.109
+**Live Application**:  [http://172.171.132.109](http://4.157.31.99)
 
 ### Quick Demo Commands
 
 ```powershell
 # Open in browser
-Start-Process "http://172.171.132.109"
+Start-Process "[http://172.171.132.109](http://4.157.31.99)"
 
 # Test queries in UI: 
 # - "show all customers" → Basic SELECT
@@ -626,4 +626,4 @@ azure-infra-devops-assignment/
 
 **Author**:  Ghulam Mujtaba  | mujtabacif@gmail.com 
 
-**Live Demo**: http://172.171.132.109
+**Live Demo**: [http://172.171.132.109](http://4.157.31.99)
