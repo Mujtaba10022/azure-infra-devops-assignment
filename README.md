@@ -1,4 +1,4 @@
-# 🚀 AI SQL Agent - Azure Infrastructure & DevOps Assignment
+# 🚀 AI SQL Agent - Azure Infrastructure & DevOps
 
 ## By:  Ghulam Mujtaba
 ## Live Demo: http://172.171.132.109
