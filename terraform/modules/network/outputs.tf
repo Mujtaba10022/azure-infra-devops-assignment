@@ -1,9 +1,26 @@
-output "vnet_id" { value = azurerm_virtual_network.main.id }
-output "vnet_name" { value = azurerm_virtual_network.main.name }
-output "aks_subnet_id" { value = azurerm_subnet. aks.id }
-output "private_endpoints_subnet_id" { value = azurerm_subnet.private_endpoints.id }
-output "dns_zone_sql_id" { value = azurerm_private_dns_zone. sql.id }
-output "dns_zone_keyvault_id" { value = azurerm_private_dns_zone.keyvault.id }
-output "dns_zone_storage_id" { value = azurerm_private_dns_zone.storage.id }
-output "dns_zone_acr_id" { value = azurerm_private_dns_zone.acr.id }
-output "dns_zone_openai_id" { value = azurerm_private_dns_zone.openai.id }
+# Network Module - Outputs
+
+output "vnet_id" {
+  description = "Virtual network ID"
+  value       = azurerm_virtual_network.main.id
+}
+
+output "vnet_name" {
+  description = "Virtual network name"
+  value       = azurerm_virtual_network. main.name
+}
+
+output "aks_subnet_id" {
+  description = "AKS subnet ID"
+  value       = azurerm_subnet.aks. id
+}
+
+output "pe_subnet_id" {
+  description = "Private endpoints subnet ID"
+  value       = azurerm_subnet.private_endpoints.id
+}
+
+output "nsg_id" {
+  description = "Network security group ID"
+  value       = azurerm_network_security_group. aks.id
+}
