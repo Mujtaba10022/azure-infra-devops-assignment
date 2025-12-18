@@ -161,7 +161,7 @@
 
 ### ✅ Compliance Requirement Met
 - **AKS Cluster**: East US
-- **Azure OpenAI**: West US (**Different Region - Compliant! **)
+- **Azure OpenAI**: West US (**Different Region - Compliant!**)
 
 ---
 
