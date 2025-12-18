@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sql-agent-config
+data:
+  SQL_SERVER: "sqlgmstaging2025.database.windows.net"
+  SQL_DATABASE: "customerdb"
+  SQL_USERNAME: "sqladmin"
+  AZURE_OPENAI_ENDPOINT: "https://gmsqlaiagent.openai.azure.com/"
+  AZURE_OPENAI_DEPLOYMENT: "gpt-4o-mini"

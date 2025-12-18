@@ -549,6 +549,10 @@ CMD gunicorn --bind 0.0.0.0:8080 --workers 2 --timeout 300 --keep-alive 5 main:a
 
 ## 🎬 Demo
 
+[![AI SQL Agent Demo](https://img.youtube.com/vi/eto3kSOqfFc/maxresdefault.jpg)](https://youtu.be/eto3kSOqfFc)
+
+▶️ **[Watch Full Demo on YouTube](https://youtu.be/eto3kSOqfFc)**
+
 **Live Application**:  http://172.171.132.109
 
 ### Quick Demo Commands
