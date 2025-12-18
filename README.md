@@ -1,7 +1,7 @@
 # 🚀 AI SQL Agent - Azure Infrastructure & DevOps
 
 ## By:  Ghulam Mujtaba
-## Live Demo: http://172.171.132.109
+## Live Demo: (http://4.157.31.99)
 
 ---
 
