@@ -212,15 +212,53 @@
 
 ---
 
+---
+
 ## 📋 Prerequisites
 
 ### Required Tools
 
-```bash
-az --version          # Azure CLI 2.50+
-terraform --version   # Terraform 1.5+
-kubectl version       # Kubernetes CLI 1.28+
-docker --version      # Docker 24.0+ (optional)
+```powershell
+# PowerShell 7+ (Run as Administrator)
+# Download:  https://github.com/PowerShell/PowerShell/releases
+$PSVersionTable. PSVersion    # Should be 7.0+
+
+# Azure CLI
+az --version          # 2.50+
+
+# Terraform
+terraform --version   # 1.5+
+
+# Kubernetes CLI
+kubectl version       # 1.28+
+
+# Docker (optional for local builds)
+docker --version      # 24.0+
+```
+
+### ⚠️ Important:  Run PowerShell 7 as Administrator
+
+```powershell
+# To open PowerShell 7 as Administrator: 
+# 1. Search for "PowerShell 7" or "pwsh" in Start Menu
+# 2. Right-click → "Run as Administrator"
+# 
+# Or run from existing PowerShell: 
+Start-Process pwsh -Verb RunAs
+```
+
+### Verify PowerShell Version
+
+```powershell
+# Check PowerShell version
+$PSVersionTable
+
+# Expected output:
+# Name                           Value
+# ----                           -----
+# PSVersion                      7.4.x
+# PSEdition                      Core
+# OS                             Microsoft Windows 10.0.xxxxx
 ```
 
 ### Azure Requirements
@@ -228,6 +266,13 @@ docker --version      # Docker 24.0+ (optional)
 - ✅ Contributor access to Azure subscription
 - ✅ Azure OpenAI service enabled
 - ✅ Sufficient quota for AKS nodes (4+ vCPUs)
+- ✅ Required resource providers registered: 
+  - Microsoft.ContainerService
+  - Microsoft. CognitiveServices
+  - Microsoft. Sql
+  - Microsoft. KeyVault
+  - Microsoft.Storage
+  - Microsoft.ContainerRegistry
 
 ---
 
@@ -575,5 +620,6 @@ azure-infra-devops-assignment/
 
 ## 📧 Contact
 
-**Author**:  Ghulam Mujtaba  
+**Author**:  Ghulam Mujtaba  | mujtabacif@gmail.com 
+
 **Live Demo**: http://172.171.132.109
