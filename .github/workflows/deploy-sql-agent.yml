@@ -1,52 +1,48 @@
-name: Build and Deploy SQL Agent
+name: Deploy SQL Agent
 
 on: 
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
+      - 'k8s/**'
       - 'app/**'
-      - 'k8s/sql-agent.yaml'
+      - '.github/workflows/deploy-sql-agent.yml'
   workflow_dispatch:
 
-jobs: 
-  build-and-deploy: 
+jobs:
+  deploy: 
     runs-on: ubuntu-latest
-    environment: staging
-
-    steps:
-    - name: Checkout
+    
+    steps: 
+    - name: Checkout code
       uses: actions/checkout@v4
 
     - name: Azure Login
-      uses: azure/login@v1
+      uses: azure/login@v2
       with: 
-        creds: ${{ secrets. AZURE_CREDENTIALS }}
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Login to ACR
-      run: az acr login --name acrgmstaging
-
-    - name: Build and Push Image
+    - name: Get AKS credentials
       run: |
-        cd app
-        docker build -t acrgmstaging.azurecr.io/sql-agent:${{ github.sha }} .
-        docker build -t acrgmstaging. azurecr.io/sql-agent:latest .
-        docker push acrgmstaging.azurecr.io/sql-agent:${{ github.sha }}
-        docker push acrgmstaging.azurecr.io/sql-agent:latest
+        az aks get-credentials --resource-group RG-GM_Assessment --name aks-gm-staging --overwrite-existing
 
-    - name: Get AKS Credentials
-      run: az aks get-credentials --resource-group RG-GM_Assessment --name aks-gm-staging --overwrite-existing
-
-    - name:  Attach ACR to AKS
-      run: az aks update --name aks-gm-staging --resource-group RG-GM_Assessment --attach-acr acrgmstaging || true
-
-    - name: Deploy SQL Agent to AKS
+    - name: Create Kubernetes Secrets from GitHub Secrets
       run: |
-        kubectl apply -f k8s/sql-agent. yaml
-        kubectl rollout status deployment/sql-agent --timeout=300s || true
+        kubectl create secret generic sql-agent-secrets \
+          --from-literal=SQL_PASSWORD=${{ secrets.SQL_ADMIN_PASSWORD }} \
+          --from-literal=AZURE_OPENAI_KEY=${{ secrets.AZURE_OPENAI_KEY }} \
+          --dry-run=client -o yaml | kubectl apply -f -
 
-    - name:  Get Service URL
+    - name: Apply ConfigMap and Deployment
       run: |
-        echo "Waiting for LoadBalancer..."
-        sleep 60
-        kubectl get service sql-agent-service
+        kubectl apply -f k8s/sql-agent.yaml
+
+    - name: Restart Deployment
+      run: |
+        kubectl rollout restart deployment/sql-agent
+        kubectl rollout status deployment/sql-agent
+
+    - name: Verify Deployment
+      run: |
         kubectl get pods -l app=sql-agent
+        kubectl get svc sql-agent-service
