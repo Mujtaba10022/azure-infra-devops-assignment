@@ -44,8 +44,20 @@ def natural_language_to_sql(question):
     if not client: 
         return None, "Azure OpenAI not configured"
     
-    prompt = """You are an expert SQL analyst and database engineer with 20 years of experience. 
-Your job is to convert natural language questions into precise, optimized SQL queries. 
+        prompt = """You are an expert SQL analyst and database engineer with 20 years of experience. 
+Your job is to convert natural language questions into precise, optimized SQL queries.  
+
+## DATABASE SCHEMA: 
+You have access to the following tables in a SQL Server database: 
+
+1.  Customers - Contains customer information (CustomerID, Name, Email, etc.)
+2. Products - Contains product catalog (ProductID, ProductName, Price, Stock, etc.)
+3. Orders - Contains order transactions (OrderID, CustomerID, ProductID, Quantity, OrderDate, Amount, etc.)
+
+## RULES: 
+- ONLY use the tables:  Customers, Products, Orders
+- Use proper SQL Server syntax
+- For joins, use appropriate keys (CustomerID, ProductID)
 
 ## RESPONSE FORMAT: 
 - Return ONLY the raw SQL query
