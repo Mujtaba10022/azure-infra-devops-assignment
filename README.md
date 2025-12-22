@@ -26,7 +26,7 @@ kubectl get svc sql-agent-service -o jsonpath='{. status.loadBalancer.ingress[0]
 
 ### When You Destroy and Redeploy Infrastructure
 
-After running `terraform destroy` and redeploying, you **MUST** update the following:
+When deploying, you **MUST** update the following:
 
 ### 1️⃣ GitHub Secrets to Update
 
@@ -35,7 +35,7 @@ Go to:  **Repository → Settings → Secrets and variables → Actions**
 | Secret Name | How to Get New Value | Example (Current) |
 |-------------|---------------------|-------------------|
 | `AZURE_CREDENTIALS` | `az ad sp create-for-rbac --name "sp-gm-staging" --role contributor --scopes /subscriptions/<SUB_ID> --sdk-auth` | Service Principal JSON |
-| `SQL_ADMIN_PASSWORD` | Your chosen password | `stored in githu` |
+| `SQL_ADMIN_PASSWORD` | Your chosen password | `stored in github's secret` |
 | `AZURE_OPENAI_KEY` | `az cognitiveservices account keys list -n oai-gm-staging -g RG-GM_Assessment --query key1 -o tsv` | OpenAI API Key |
 | `ACR_LOGIN_SERVER` | `az acr show -n acrgmstaging --query loginServer -o tsv` | `acrgmstaging.azurecr.io` |
 | `ACR_NAME` | Your ACR name | `acrgmstaging` |
@@ -283,7 +283,7 @@ Azure DNS Resolver (168.63.129.16)
        │
        │ Check Private DNS Zone
        ▼
-Private DNS Zone:  privatelink.database. windows.net
+Private DNS Zone:  privatelink.database.windows.net
        │
        │ A Record → 10.0.2.x (Private IP)
        ▼
@@ -315,9 +315,9 @@ git --version         # Git
 ```bash
 az provider register --namespace Microsoft.ContainerService
 az provider register --namespace Microsoft.CognitiveServices
-az provider register --namespace Microsoft. Sql
+az provider register --namespace Microsoft.Sql
 az provider register --namespace Microsoft.KeyVault
-az provider register --namespace Microsoft. Storage
+az provider register --namespace Microsoft.Storage
 az provider register --namespace Microsoft.ContainerRegistry
 ```
 
