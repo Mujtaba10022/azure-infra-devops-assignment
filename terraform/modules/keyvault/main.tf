@@ -3,7 +3,10 @@
 variable "resource_group_name" { type = string }
 variable "location" { type = string }
 variable "environment" { type = string }
-variable "project" { type = string default = "gm" }
+variable "project" {
+  type    = string
+  default = "gm"
+}
 variable "subnet_id" { type = string }
 variable "dns_zone_id" { type = string }
 variable "tenant_id" { type = string }

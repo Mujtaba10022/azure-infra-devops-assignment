@@ -1,5 +1,5 @@
 # Staging Environment - Main Configuration
-# Author: Ghulam Mujtaba
+# Author:  Ghulam Mujtaba
 # Description: Production-grade Azure infrastructure with Private Endpoints
 
 terraform {
@@ -14,12 +14,25 @@ terraform {
     resource_group_name  = "RG-GM_Assessment"
     storage_account_name = "stgmstaging"
     container_name       = "tfstate"
-    key                  = "staging.terraform.tfstate"
+    key                  = "staging. terraform.tfstate"
   }
 }
 
 provider "azurerm" {
   features {}
+}
+data "azurerm_client_config" "current" {}
+
+# =============================================================================
+# LOG ANALYTICS WORKSPACE (Required for AKS monitoring)
+# =============================================================================
+resource "azurerm_log_analytics_workspace" "main" {
+  name                = "log-${var.project}-${var.environment}"
+  location            = var.location
+  resource_group_name = var. resource_group_name
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
+  tags                = { Environment = var.environment, Project = var. project }
 }
 
 # =============================================================================
@@ -32,22 +45,6 @@ module "network" {
   environment         = var.environment
   project             = var.project
   vnet_address_space  = ["10.0.0.0/16"]
-  aks_subnet_prefix   = "10.0.4.0/22"
-  pe_subnet_prefix    = "10.0.2.0/24"
-}
-
-# =============================================================================
-# AKS MODULE
-# =============================================================================
-module "aks" {
-  source              = "../../modules/aks"
-  resource_group_name = var.resource_group_name
-  location            = var.location
-  environment         = var.environment
-  project             = var.project
-  subnet_id           = module.network.aks_subnet_id
-  node_count          = var.aks_node_count
-  vm_size             = var.aks_vm_size
 }
 
 # =============================================================================
@@ -57,8 +54,26 @@ module "acr" {
   source              = "../../modules/acr"
   resource_group_name = var.resource_group_name
   location            = var. location
-  environment         = var. environment
-  project             = var. project
+  acr_name            = "acr${var. project}${var. environment}"
+  tags                = { Environment = var.environment, Project = var. project }
+}
+
+# =============================================================================
+# AKS MODULE
+# =============================================================================
+module "aks" {
+  source                     = "../../modules/aks"
+  resource_group_name        = var.resource_group_name
+  location                   = var.location
+  cluster_name               = "aks-${var.project}-${var.environment}"
+  dns_prefix                 = "aks-${var.project}-${var.environment}"
+  subnet_id                  = module.network. aks_subnet_id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
+  system_node_count          = var. aks_node_count
+  system_node_vm_size        = var.aks_vm_size
+  acr_id                     = module. acr.acr_id
+  attach_acr                 = true
+  tags                       = { Environment = var.environment, Project = var. project }
 }
 
 # =============================================================================
@@ -67,11 +82,14 @@ module "acr" {
 module "sql" {
   source              = "../../modules/sql"
   resource_group_name = var.resource_group_name
-  location            = "westus2"  # Different region for geo-compliance
+  location            = var.location
+  sql_location        = "westus2"
   environment         = var.environment
   project             = var.project
-  subnet_id           = module.network. pe_subnet_id
+  admin_username      = var.sql_admin_username
   admin_password      = var.sql_admin_password
+  subnet_id           = module.network.private_endpoints_subnet_id
+  dns_zone_id         = module.network.dns_zone_sql_id
 }
 
 # =============================================================================
@@ -80,20 +98,23 @@ module "sql" {
 module "keyvault" {
   source              = "../../modules/keyvault"
   resource_group_name = var.resource_group_name
-  location            = var.location
+  location            = var. location
   environment         = var.environment
   project             = var.project
+  subnet_id           = module.network. private_endpoints_subnet_id
+  dns_zone_id         = module.network. dns_zone_keyvault_id
+  tenant_id           = data.azurerm_client_config.current.tenant_id
 }
 
 # =============================================================================
 # STORAGE MODULE
 # =============================================================================
 module "storage" {
-  source              = "../../modules/storage"
-  resource_group_name = var.resource_group_name
-  location            = var.location
-  environment         = var.environment
-  project             = var.project
+  source               = "../../modules/storage"
+  resource_group_name  = var.resource_group_name
+  location             = var. location
+  storage_account_name = "st${var.project}${var.environment}"
+  tags                 = { Environment = var.environment, Project = var. project }
 }
 
 # =============================================================================
@@ -102,43 +123,7 @@ module "storage" {
 module "openai" {
   source              = "../../modules/openai"
   resource_group_name = var.resource_group_name
-  location            = "westus"  # OpenAI available region
-  environment         = var.environment
-  project             = var.project
-}
-
-# =============================================================================
-# PRIVATE ENDPOINTS MODULE
-# =============================================================================
-module "private_endpoint_sql" {
-  source              = "../../modules/private-endpoints"
-  resource_group_name = var.resource_group_name
-  location            = var.location
-  environment         = var.environment
-  subnet_id           = module.network. pe_subnet_id
-  resource_id         = module.sql.sql_server_id
-  resource_type       = "sql"
-  subresource_names   = ["sqlServer"]
-}
-
-module "private_endpoint_keyvault" {
-  source              = "../../modules/private-endpoints"
-  resource_group_name = var.resource_group_name
-  location            = var.location
-  environment         = var.environment
-  subnet_id           = module.network.pe_subnet_id
-  resource_id         = module.keyvault. keyvault_id
-  resource_type       = "keyvault"
-  subresource_names   = ["vault"]
-}
-
-module "private_endpoint_storage" {
-  source              = "../../modules/private-endpoints"
-  resource_group_name = var.resource_group_name
-  location            = var.location
-  environment         = var.environment
-  subnet_id           = module. network.pe_subnet_id
-  resource_id         = module. storage.storage_account_id
-  resource_type       = "storage"
-  subresource_names   = ["blob"]
+  location            = "westus"
+  openai_name         = "oai-${var.project}-${var.environment}"
+  tags                = { Environment = var.environment, Project = var.project }
 }

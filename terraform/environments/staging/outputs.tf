@@ -17,7 +17,7 @@ output "sql_server_fqdn" {
 
 output "keyvault_uri" {
   description = "Key Vault URI"
-  value       = module.keyvault.vault_uri
+  value       = module.keyvault.key_vault_uri
 }
 
 output "storage_account_name" {

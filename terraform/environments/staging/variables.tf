@@ -41,3 +41,9 @@ variable "sql_admin_password" {
   type        = string
   sensitive   = true
 }
+
+variable "sql_admin_username" {
+  description = "SQL Server admin username"
+  type        = string
+  default     = "sqladmin"
+}
