@@ -44,9 +44,9 @@ Go to:  **Repository → Settings → Secrets and variables → Actions**
 
 | File | What to Update | Example Value |
 |------|---------------|---------------|
-| `k8s/sql-agent. yaml` | `SQL_SERVER` | `sql-gm-staging.database.windows.net` |
-| `k8s/sql-agent. yaml` | `AZURE_OPENAI_ENDPOINT` | `https://westus. api.cognitive.microsoft.com/` |
-| `.github/workflows/deploy-sql-agent. yml` | Resource group, AKS name | `RG-GM_Assessment`, `aks-gm-staging` |
+| `k8s/sql-agent.yaml` | `SQL_SERVER` | `sql-gm-staging.database.windows.net` |
+| `k8s/sql-agent.yaml` | `AZURE_OPENAI_ENDPOINT` | `https://westus. api.cognitive.microsoft.com/` |
+| `.github/workflows/deploy-sql-agent.yml` | Resource group, AKS name | `RG-GM_Assessment`, `aks-gm-staging` |
 
 ### 3️⃣ Quick Commands to Get New Values
 
@@ -382,14 +382,14 @@ kubectl get svc sql-agent-service -o jsonpath='{.status.loadBalancer.ingress[0].
 
 ## 🔄 CI/CD Pipelines
 
-### GitHub Actions:  deploy-sql-agent. yml
+### GitHub Actions:  deploy-sql-agent.yml
 - Creates K8s secrets from GitHub Secrets (secure!)
 - Deploys ConfigMap, Deployment, Service
 - No hardcoded credentials
 
 ### Azure DevOps Pipelines
 - `azure-pipelines-infra.yml` - Terraform deployment
-- `azure-pipelines-app. yml` - Build, push, deploy to AKS
+- `azure-pipelines-app.yml` - Build, push, deploy to AKS
 
 ### Security Patterns
 | Pattern | Implementation |
@@ -518,13 +518,13 @@ azure-infra-devops-assignment/
 │   ├── main.py
 │   └── templates/index.html
 ├── k8s/                         # Kubernetes manifests
-│   └── sql-agent. yaml
+│   └── sql-agent.yaml
 ├── terraform/                   # Infrastructure as Code
 │   ├── modules/                 # aks/, sql/, openai/, keyvault/, storage/, acr/, networking/
 │   └── environments/            # dev/, staging/, prod/
 ├── pipelines/                   # Azure DevOps
 │   ├── azure-pipelines-infra.yml
-│   └── azure-pipelines-app. yml
+│   └── azure-pipelines-app.yml
 └── README.md
 ```
 
