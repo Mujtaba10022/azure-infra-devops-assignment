@@ -15,7 +15,7 @@
 
 ```bash
 # Get the live application URL after deployment
-kubectl get svc sql-agent-service -o jsonpath='{. status.loadBalancer.ingress[0].ip}'
+kubectl get svc sql-agent-service -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
 ```
 
 ---
@@ -246,9 +246,9 @@ az aks get-credentials -g RG-GM_Assessment -n aks-gm-staging --overwrite-existin
 
 | Service | Private Endpoint | Private DNS Zone | Example Resource |
 |---------|------------------|------------------|------------------|
-| Azure SQL | pe-sql-staging | privatelink.database. windows.net | `sql-gm-staging` |
+| Azure SQL | pe-sql-staging | privatelink.database.windows.net | `sql-gm-staging` |
 | Key Vault | pe-kv-staging | privatelink.vaultcore.azure.net | `kv-gm-staging` |
-| Storage | pe-st-staging | privatelink.blob.core.windows. net | `stgmstaging` |
+| Storage | pe-st-staging | privatelink.blob.core.windows.net | `stgmstaging` |
 | ACR | (AKS integrated) | privatelink.azurecr.io | `acrgmstaging` |
 | OpenAI | (Managed) | privatelink.openai.azure.com | `oai-gm-staging` |
 
@@ -281,7 +281,7 @@ Azure DNS Resolver (168.63.129.16)
        │
        │ Check Private DNS Zone
        ▼
-Private DNS Zone:  privatelink.database. windows.net
+Private DNS Zone:  privatelink.database.windows.net
        │
        │ A Record → 10.0.2.x (Private IP)
        ▼
@@ -311,11 +311,11 @@ git --version         # Git
 
 ### Required Resource Providers
 ```bash
-az provider register --namespace Microsoft. ContainerService
+az provider register --namespace Microsoft.ContainerService
 az provider register --namespace Microsoft.CognitiveServices
-az provider register --namespace Microsoft. Sql
+az provider register --namespace Microsoft.Sql
 az provider register --namespace Microsoft.KeyVault
-az provider register --namespace Microsoft. Storage
+az provider register --namespace Microsoft.Storage
 az provider register --namespace Microsoft.ContainerRegistry
 ```
 
@@ -347,8 +347,8 @@ kubectl get nodes
 ### Step 4: Update k8s/sql-agent.yaml with your values
 ```yaml
 # Get values from Azure CLI and update ConfigMap: 
-AZURE_OPENAI_ENDPOINT:  "https://westus.api.cognitive. microsoft.com/"  # az cognitiveservices account show... 
-SQL_SERVER: "sql-gm-staging.database.windows. net"                      # az sql server show...
+AZURE_OPENAI_ENDPOINT:  "https://westus.api.cognitive.microsoft.com/"  # az cognitiveservices account show... 
+SQL_SERVER: "sql-gm-staging.database.windows.net"                      # az sql server show...
 ```
 
 ### Step 5: Build and Push Container Image
@@ -477,9 +477,9 @@ kubectl logs -l app=sql-agent --tail=50
 
 ### Application
 ```bash
-EXTERNAL_IP=$(kubectl get svc sql-agent-service -o jsonpath='{.status.loadBalancer. ingress[0]. ip}')
+EXTERNAL_IP=$(kubectl get svc sql-agent-service -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 curl http://$EXTERNAL_IP/api/health
-curl -X POST http://$EXTERNAL_IP/api/ask -H "Content-Type: application/json" -d '{"question":"show all customers"}'
+
 ```
 
 ---
