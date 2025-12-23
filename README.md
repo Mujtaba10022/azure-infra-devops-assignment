@@ -1,7 +1,6 @@
 # 🚀 AI SQL Agent - Azure Infrastructure & DevOps Assignment
 
 [![Deploy SQL Agent](https://github.com/Mujtaba10022/azure-infra-devops-assignment/actions/workflows/deploy-sql-agent.yml/badge.svg)](https://github.com/Mujtaba10022/azure-infra-devops-assignment/actions/workflows/deploy-sql-agent.yml)
-[![Azure](https://img.shields.io/badge/Azure-Cloud-0078D4? logo=microsoft-azure)](https://azure.microsoft.com)
 [![Terraform](https://img.shields.io/badge/Terraform-IaC-7B42BC?logo=terraform)](https://www.terraform.io)
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-AKS-326CE5?logo=kubernetes)](https://azure.microsoft.com/en-us/products/kubernetes-service)
 
