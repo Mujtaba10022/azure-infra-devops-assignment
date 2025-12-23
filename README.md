@@ -1,7 +1,6 @@
-
 # 🚀 AI SQL Agent - Azure Infrastructure & DevOps Assignment
 
-[![Deploy SQL Agent](https://github.com/Mujtaba10022/azure-infra-devops-assignment/actions/workflows/deploy-sql-agent. yml/badge.svg)](https://github.com/Mujtaba10022/azure-infra-devops-assignment/actions/workflows/deploy-sql-agent.yml)
+[![Deploy SQL Agent](https://github.com/Mujtaba10022/azure-infra-devops-assignment/actions/workflows/deploy-sql-agent.yml/badge.svg)](https://github.com/Mujtaba10022/azure-infra-devops-assignment/actions/workflows/deploy-sql-agent.yml)
 [![Azure](https://img.shields.io/badge/Azure-Cloud-0078D4? logo=microsoft-azure)](https://azure.microsoft.com)
 [![Terraform](https://img.shields.io/badge/Terraform-IaC-7B42BC?logo=terraform)](https://www.terraform.io)
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-AKS-326CE5?logo=kubernetes)](https://azure.microsoft.com/en-us/products/kubernetes-service)
@@ -35,7 +34,7 @@ Go to:  **Repository → Settings → Secrets and variables → Actions**
 | Secret Name | How to Get New Value | Example (Current) |
 |-------------|---------------------|-------------------|
 | `AZURE_CREDENTIALS` | `az ad sp create-for-rbac --name "sp-gm-staging" --role contributor --scopes /subscriptions/<SUB_ID> --sdk-auth` | Service Principal JSON |
-| `SQL_ADMIN_PASSWORD` | Your chosen password | `stored in github's secret` |
+| `SQL_ADMIN_PASSWORD` | Your chosen password | `stored in github secret` |
 | `AZURE_OPENAI_KEY` | `az cognitiveservices account keys list -n oai-gm-staging -g RG-GM_Assessment --query key1 -o tsv` | OpenAI API Key |
 | `ACR_LOGIN_SERVER` | `az acr show -n acrgmstaging --query loginServer -o tsv` | `acrgmstaging.azurecr.io` |
 | `ACR_NAME` | Your ACR name | `acrgmstaging` |
@@ -47,7 +46,7 @@ Go to:  **Repository → Settings → Secrets and variables → Actions**
 | File | What to Update | Example Value |
 |------|---------------|---------------|
 | `k8s/sql-agent. yaml` | `SQL_SERVER` | `sql-gm-staging.database.windows.net` |
-| `k8s/sql-agent. yaml` | `AZURE_OPENAI_ENDPOINT` | `https://westus. api.cognitive.microsoft. com/` |
+| `k8s/sql-agent. yaml` | `AZURE_OPENAI_ENDPOINT` | `https://westus. api.cognitive.microsoft.com/` |
 | `.github/workflows/deploy-sql-agent. yml` | Resource group, AKS name | `RG-GM_Assessment`, `aks-gm-staging` |
 
 ### 3️⃣ Quick Commands to Get New Values
@@ -62,7 +61,7 @@ az cognitiveservices account keys list -n oai-gm-staging -g RG-GM_Assessment --q
 # Get SQL Server FQDN (Example: sql-gm-staging in RG-GM_Assessment)
 az sql server show -n sql-gm-staging -g RG-GM_Assessment --query fullyQualifiedDomainName -o tsv
 
-# Get ACR Login Server (Example:  acrgmstaging)
+# Get ACR Login Server (Example: acrgmstaging)
 az acr show -n acrgmstaging --query loginServer -o tsv
 
 # Get AKS Credentials (Example: aks-gm-staging in RG-GM_Assessment)
@@ -104,7 +103,7 @@ az aks get-credentials -g RG-GM_Assessment -n aks-gm-staging --overwrite-existin
 │   ┌───────────────────────────────────────────────────────────────────────────────────────────────────┐  │
 │   │                              CI/CD PIPELINES (Azure DevOps / GitHub Actions)                       │  │
 │   │  ┌─────────────────────────────────┐         ┌─────────────────────────────────┐                  │  │
-│   │  │ azure-pipelines-infra. yml       │         │ azure-pipelines-app.yml         │                  │  │
+│   │  │ azure-pipelines-infra.yml       │         │ azure-pipelines-app.yml         │                  │  │
 │   │  │ • Terraform Init/Plan/Apply     │         │ • Docker Build & Push to ACR    │                  │  │
 │   │  │ • State in Azure Storage        │         │ • Deploy to AKS (kubectl)       │                  │  │
 │   │  │ • Secrets from Key Vault        │         │ • Secrets from GitHub Secrets   │                  │  │
@@ -113,16 +112,16 @@ az aks get-credentials -g RG-GM_Assessment -n aks-gm-staging --overwrite-existin
 │                       │                                            │                                      │
 │                       ▼                                            ▼                                      │
 │   ┌───────────────────────────────────────────────────────────────────────────────────────────────────┐  │
-│   │     RESOURCE GROUP:  RG-GM_Assessment (Example:  RG-<YourName>_<Purpose>)                            │  │
+│   │     RESOURCE GROUP:  RG-GM_Assessment (Example: RG-<YourName>_<Purpose>)                            │  │
 │   │                                                                                                    │  │
 │   │   ┌────────────────────────────────────────────────────────────────────────────────────────────┐  │  │
 │   │   │                         EAST US - Application Region                                        │  │  │
 │   │   │   ┌────────────────────────────────────────────────────────────────────────────────────┐   │  │  │
-│   │   │   │       VIRTUAL NETWORK: vnet-gm-staging (Example: vnet-<env>-<region>)               │   │  │  │
+│   │   │   │       VIRTUAL NETWORK:  vnet-gm-staging (Example: vnet-<env>-<region>)               │   │  │  │
 │   │   │   │                        Address Space:  10.0.0.0/16                                   │   │  │  │
 │   │   │   │                                                                                     │   │  │  │
 │   │   │   │   ┌─────────────────────────────────────────────────────────────────────────────┐  │   │  │  │
-│   │   │   │   │ SUBNET:  snet-aks (10.0.1.0/24)              NSG: nsg-aks-eastus             │  │   │  │  │
+│   │   │   │   │ SUBNET: snet-aks (10.0.1.0/24)              NSG: nsg-aks-eastus             │  │   │  │  │
 │   │   │   │   │  ┌───────────────────────────────────────────────────────────────────────┐  │  │   │  │  │
 │   │   │   │   │  │     AKS CLUSTER:  aks-gm-staging (Example:  aks-<env>-<region>)         │  │  │   │  │  │
 │   │   │   │   │  │                  Kubernetes v1.30.9 | Azure CNI Networking            │  │  │   │  │  │
@@ -136,7 +135,7 @@ az aks get-credentials -g RG-GM_Assessment -n aks-gm-staging --overwrite-existin
 │   │   │   │   │  │  │                    KUBERNETES WORKLOADS                          │ │  │  │   │  │  │
 │   │   │   │   │  │  │  Namespace: default                                              │ │  │  │   │  │  │
 │   │   │   │   │  │  │  ┌───────────────────┐  ┌───────────────────┐                    │ │  │  │   │  │  │
-│   │   │   │   │  │  │  │ Deployment:        │  │ Service:          │                    │ │  │  │   │  │  │
+│   │   │   │   │  │  │  │ Deployment:        │  │ Service:           │                    │ │  │  │   │  │  │
 │   │   │   │   │  │  │  │ sql-agent         │  │ sql-agent-service │                    │ │  │  │   │  │  │
 │   │   │   │   │  │  │  │ Replicas: 2       │  │ Type: LoadBalancer│                    │ │  │  │   │  │  │
 │   │   │   │   │  │  │  └───────────────────┘  └───────────────────┘                    │ │  │  │   │  │  │
@@ -194,7 +193,7 @@ az aks get-credentials -g RG-GM_Assessment -n aks-gm-staging --overwrite-existin
 │                                                                                                          │
 │   ┌───────────────────────────────────────────────────────────────────────────────────────────────────┐  │
 │   │                              PRIVATE DNS ZONES (Global)                                            │  │
-│   │  privatelink.database.windows.net | privatelink.vaultcore.azure.net | privatelink.blob.core...     │  │
+│   │  privatelink.database.windows.net | privatelink.vaultcore.azure. net | privatelink.blob.core...     │  │
 │   │  privatelink.azurecr.io | privatelink.openai.azure.com                                            │  │
 │   └───────────────────────────────────────────────────────────────────────────────────────────────────┘  │
 └──────────────────────────────────────────────────────────────────────────────────────────────────────────┘
@@ -229,7 +228,7 @@ az aks get-credentials -g RG-GM_Assessment -n aks-gm-staging --overwrite-existin
 
 | Requirement | Implementation |
 |-------------|---------------|
-| AKS and OpenAI in different regions | AKS:  **East US**, OpenAI: **West US** ✓ |
+| AKS and OpenAI in different regions | AKS: **East US**, OpenAI: **West US** ✓ |
 | Private endpoint connectivity | All data services use private endpoints ✓ |
 | No public internet exposure | Zero public access to data/AI resources ✓ |
 
@@ -251,7 +250,7 @@ az aks get-credentials -g RG-GM_Assessment -n aks-gm-staging --overwrite-existin
 | Azure SQL | pe-sql-staging | privatelink.database. windows.net | `sql-gm-staging` |
 | Key Vault | pe-kv-staging | privatelink.vaultcore.azure.net | `kv-gm-staging` |
 | Storage | pe-st-staging | privatelink.blob.core.windows. net | `stgmstaging` |
-| ACR | (AKS integrated) | privatelink.azurecr. io | `acrgmstaging` |
+| ACR | (AKS integrated) | privatelink.azurecr.io | `acrgmstaging` |
 | OpenAI | (Managed) | privatelink.openai.azure.com | `oai-gm-staging` |
 
 ### Kubernetes Network Security
@@ -259,7 +258,7 @@ az aks get-credentials -g RG-GM_Assessment -n aks-gm-staging --overwrite-existin
 #### Network Policies Approach
 - **Pod-to-Pod**:  Restrict communication to only required services
 - **Pod-to-External**: Allow only Azure backbone traffic (private endpoints)
-- **Ingress**: LoadBalancer service for external access
+- **Ingress**:  LoadBalancer service for external access
 
 #### Ingress Controller Strategy
 | Option | Use Case |
@@ -283,7 +282,7 @@ Azure DNS Resolver (168.63.129.16)
        │
        │ Check Private DNS Zone
        ▼
-Private DNS Zone:  privatelink.database.windows.net
+Private DNS Zone:  privatelink.database. windows.net
        │
        │ A Record → 10.0.2.x (Private IP)
        ▼
@@ -313,11 +312,11 @@ git --version         # Git
 
 ### Required Resource Providers
 ```bash
-az provider register --namespace Microsoft.ContainerService
+az provider register --namespace Microsoft. ContainerService
 az provider register --namespace Microsoft.CognitiveServices
-az provider register --namespace Microsoft.Sql
+az provider register --namespace Microsoft. Sql
 az provider register --namespace Microsoft.KeyVault
-az provider register --namespace Microsoft.Storage
+az provider register --namespace Microsoft. Storage
 az provider register --namespace Microsoft.ContainerRegistry
 ```
 
@@ -349,7 +348,7 @@ kubectl get nodes
 ### Step 4: Update k8s/sql-agent.yaml with your values
 ```yaml
 # Get values from Azure CLI and update ConfigMap: 
-AZURE_OPENAI_ENDPOINT:  "https://westus.api.cognitive.microsoft.com/"  # az cognitiveservices account show... 
+AZURE_OPENAI_ENDPOINT:  "https://westus.api.cognitive. microsoft.com/"  # az cognitiveservices account show... 
 SQL_SERVER: "sql-gm-staging.database.windows. net"                      # az sql server show...
 ```
 
@@ -384,7 +383,7 @@ kubectl get svc sql-agent-service -o jsonpath='{.status.loadBalancer.ingress[0].
 
 ## 🔄 CI/CD Pipelines
 
-### GitHub Actions:  deploy-sql-agent.yml
+### GitHub Actions:  deploy-sql-agent. yml
 - Creates K8s secrets from GitHub Secrets (secure!)
 - Deploys ConfigMap, Deployment, Service
 - No hardcoded credentials
@@ -549,11 +548,10 @@ azure-infra-devops-assignment/
 
 ## 📧 Contact
 
-**Author**:  Ghulam Mujtaba
-**Email**: mujtabacif@gmail.com
+**Author**: Ghulam Mujtaba  
+**Email**: mujtabacif@gmail.com  
 **GitHub**: [@Mujtaba10022](https://github.com/Mujtaba10022)
 
 ---
 
 <p align="center"><b>Built with 🧠 using Azure + Kubernetes + OpenAI</b></p>
-
