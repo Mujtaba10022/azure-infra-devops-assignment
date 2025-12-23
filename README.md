@@ -173,7 +173,7 @@ az aks get-credentials -g RG-GM_Assessment -n aks-gm-staging --overwrite-existin
 │   │                    ▼                                                   ▼                         │  │
 │   │   ┌─────────────────────────────────┐     ┌─────────────────────────────────┐                   │  │
 │   │   │  WEST US - AI Region            │     │  Database Region                │                   │  │
-│   │   │  ⚠️ COMPLIANCE:  Different Region │     │                                 │                   │  │
+│   │   │  ⚠️ COMPLIANCE:  Different Region │     │                                 │                 │  │
 │   │   │ ┌─────────────────────────────┐ │     │ ┌─────────────────────────────┐ │                   │  │
 │   │   │ │ AZURE OPENAI SERVICE        │ │     │ │ AZURE SQL SERVER            │ │                   │  │
 │   │   │ │ oai-gm-staging              │ │     │ │ sql-gm-staging              │ │                   │  │
