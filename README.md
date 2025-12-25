@@ -361,8 +361,8 @@ az acr build --registry acrgmstaging --image sql-agent:v2 --file app/Dockerfile 
 ```bash
 # Create secrets (or use CI/CD)
 kubectl create secret generic sql-agent-secrets \
-  --from-literal=SQL_PASSWORD=<YOUR_PASSWORD> \
-  --from-literal=AZURE_OPENAI_KEY=<YOUR_KEY>
+ --from-literal=SQL_PASSWORD=${{ secrets.SQL_ADMIN_PASSWORD }} \
+ --from-literal=AZURE_OPENAI_KEY=${{ secrets.AZURE_OPENAI_KEY }} \
 
 # Deploy
 kubectl apply -f k8s/sql-agent.yaml
