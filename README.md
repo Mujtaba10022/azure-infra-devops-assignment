@@ -547,9 +547,9 @@ azure-infra-devops-assignment/
 
 ## 📧 Contact
 
-**Author**: Ghulam Mujtaba  
-**Email**: mujtabacif@gmail.com  
-**GitHub**: [@Mujtaba10022](https://github.com/Mujtaba10022)
+**Author:** Ghulam Mujtaba  
+**Email:** mujtabacif@gmail. com  
+**Portfolio:** [Ghulam Mujtaba_DevOps Engineer](https://mujtabaportfolio. azurewebsites.net/)
 
 ---
 
