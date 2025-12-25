@@ -5,7 +5,7 @@
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-AKS-326CE5?logo=kubernetes)](https://azure.microsoft.com/en-us/products/kubernetes-service)
 
 ## Author:  Ghulam Mujtaba
-**Email**: mujtabacif@gmail. com | **GitHub**: [@Mujtaba10022](https://github.com/Mujtaba10022)
+**Email**: mujtabacif@gmail. com | **Portfolio:** [Ghulam Mujtaba_DevOps Engineer](https://mujtabaportfolio.azurewebsites.net/)
 
 > **Production-grade SQL Agent Customer Service Portal** leveraging Azure OpenAI for intelligent SQL-based query responses, deployed on Azure Kubernetes Service with comprehensive network security and compliance-driven regional separation.
 
