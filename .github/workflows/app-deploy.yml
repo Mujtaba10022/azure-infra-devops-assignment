@@ -1,42 +1,35 @@
-name: Application Deploy
+name: Deploy to AKS
 
 on:
-  push: 
-    branches: [ main ]
-    paths:
-      - 'app/**'
-  workflow_dispatch:
+  push:
+    branches: [main]
 
 jobs:
   deploy:
-    runs-on:  ubuntu-latest
-    environment: staging
-
+    runs-on: ubuntu-latest
+    
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-
+    - uses: actions/checkout@v3
+    
     - name: Azure Login
       uses: azure/login@v1
       with: 
-        creds: ${{ secrets. AZURE_CREDENTIALS }}
-
-    - name: Build and Push to ACR
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Get AKS Credentials
       run: |
-        az acr login --name acrgmstaging
-        cd app
-        docker build -t acrgmstaging. azurecr.io/sql-agent: ${{ github.sha }} . 
-        docker build -t acrgmstaging. azurecr.io/sql-agent:latest .
-        docker push acrgmstaging.azurecr.io/sql-agent:${{ github.sha }}
-        docker push acrgmstaging.azurecr.io/sql-agent:latest
-
+        az aks get-credentials \
+          --resource-group ${{ secrets.AKS_RG }} \
+          --name ${{ secrets.AKS_NAME }}
+    
+    - name: Create Kubernetes Secrets from GitHub Secrets
+      run: |
+        kubectl delete secret sql-agent-secrets --ignore-not-found
+        kubectl create secret generic sql-agent-secrets \
+          --from-literal=SQL_PASSWORD=${{ secrets.SQL_ADMIN_PASSWORD }} \
+          --from-literal=AZURE_OPENAI_KEY=${{ secrets.AZURE_OPENAI_KEY }} \
+          --from-literal=AZURE_OPENAI_ENDPOINT=${{ secrets.AZURE_OPENAI_ENDPOINT }}
+    
     - name: Deploy to AKS
       run: |
-        az aks get-credentials --resource-group RG-GM_Assessment --name aks-gm-staging --overwrite-existing
-        kubectl rollout restart deployment/sql-agent
-        kubectl rollout status deployment/sql-agent --timeout=300s
-
-    - name: Get Service Info
-      run: |
-        kubectl get pods -l app=sql-agent
-        kubectl get service sql-agent-service
+        kubectl apply -f k8s/sql-agent.yaml
