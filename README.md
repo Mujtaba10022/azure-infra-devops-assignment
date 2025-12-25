@@ -357,9 +357,10 @@ SQL_SERVER: "sql-gm-staging.database.windows.net"                      # az sql 
 az acr build --registry acrgmstaging --image sql-agent:v2 --file app/Dockerfile app/
 ```
 
-### Step 6: Deploy Application
+## Step 6: Deploy Application
+
 ```bash
-# Create secrets (or use CI/CD)
+# Create secrets (replace with your actual values)
 kubectl create secret generic sql-agent-secrets \
  --from-literal=SQL_PASSWORD=${{ secrets.SQL_ADMIN_PASSWORD }} \
  --from-literal=AZURE_OPENAI_KEY=${{ secrets.AZURE_OPENAI_KEY }} \
@@ -372,10 +373,14 @@ kubectl get pods -l app=sql-agent
 kubectl get svc sql-agent-service
 ```
 
-### Step 7: Access Application
+## Step 7: Access Application
+
 ```bash
+# Get External IP
 kubectl get svc sql-agent-service -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
-# Open:  http://<EXTERNAL_IP>
+
+# Open in browser
+# http://<EXTERNAL-IP>: 8080
 ```
 
 ---
